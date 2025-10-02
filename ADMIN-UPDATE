@@ -1,0 +1,529 @@
+"use client"
+
+import { useState } from "react"
+import { 
+  Menu, 
+  Bell, 
+  Home, 
+  TrendingUp, 
+  Users, 
+  UserCheck, 
+  CalendarCheck, 
+  AlertTriangle, 
+  Bullhorn, 
+  Satellite, 
+  FileMedical, 
+  MapMarked, 
+  Tasks, 
+  CommentAlt, 
+  ChartBar, 
+  EnvelopeOpenText, 
+  Newspaper, 
+  CalendarAlt, 
+  Images, 
+  Video, 
+  FileAlt, 
+  Phone, 
+  Cog, 
+  User, 
+  SignOutAlt, 
+  Plus, 
+  Edit, 
+  Trash, 
+  Search,
+  X
+} from "lucide-react"
+
+export default function AdminDashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState("dashboard")
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const navItems = [
+    {
+      category: "Main",
+      items: [
+        { id: "dashboard", label: "Dashboard", icon: Home },
+        { id: "analytics", label: "Analytics", icon: TrendingUp }
+      ]
+    },
+    {
+      category: "Personnel",
+      items: [
+        { id: "personnel", label: "Personnel Directory", icon: Users },
+        { id: "teams", label: "Team Assignments", icon: UserCheck },
+        { id: "schedules", label: "Schedules", icon: CalendarCheck }
+      ]
+    },
+    {
+      category: "Alerts & Warnings",
+      items: [
+        { id: "alerts", label: "Emergency Alerts", icon: AlertTriangle },
+        { id: "warnings", label: "Public Warnings", icon: Bullhorn },
+        { id: "weather", label: "Weather Advisories", icon: Satellite }
+      ]
+    },
+    {
+      category: "Incident Reports",
+      items: [
+        { id: "incidents", label: "Reported Incidents", icon: FileMedical },
+        { id: "incident-map", label: "Incident Map", icon: MapMarked },
+        { id: "response", label: "Response Tracking", icon: Tasks }
+      ]
+    },
+    {
+      category: "Feedback Reports",
+      items: [
+        { id: "feedback", label: "Public Feedback", icon: CommentAlt },
+        { id: "feedback-analytics", label: "Feedback Analytics", icon: ChartBar },
+        { id: "surveys", label: "Survey Responses", icon: EnvelopeOpenText }
+      ]
+    },
+    {
+      category: "Content Management",
+      items: [
+        { id: "news", label: "News & Updates", icon: Newspaper },
+        { id: "activities", label: "Activities", icon: CalendarAlt },
+        { id: "gallery", label: "Gallery", icon: Images },
+        { id: "videos", label: "Videos", icon: Video },
+        { id: "resources", label: "Resources", icon: FileAlt },
+        { id: "maps", label: "Maps", icon: MapMarked }
+      ]
+    },
+    {
+      category: "System",
+      items: [
+        { id: "hotlines", label: "Hotline Numbers", icon: Phone },
+        { id: "settings", label: "General Settings", icon: Cog }
+      ]
+    },
+    {
+      category: "Account",
+      items: [
+        { id: "profile", label: "Profile", icon: User },
+        { id: "logout", label: "Logout", icon: SignOutAlt }
+      ]
+    }
+  ]
+
+  const stats = [
+    { title: "Total Announcements", value: "24", icon: Bullhorn, color: "bg-blue-950" },
+    { title: "News Articles", value: "42", icon: Newspaper, color: "bg-blue-950" },
+    { title: "Gallery Images", value: "128", icon: Images, color: "bg-blue-950" },
+    { title: "Active Users", value: "156", icon: Users, color: "bg-blue-950" }
+  ]
+
+  const quickActions = [
+    { title: "Add Announcement", icon: Bullhorn, color: "bg-blue-50" },
+    { title: "Add News", icon: Newspaper, color: "bg-blue-50" },
+    { title: "Add Activity", icon: CalendarPlus, color: "bg-blue-50" },
+    { title: "Upload Media", icon: Upload, color: "bg-blue-50" }
+  ]
+
+  const recentActivities = [
+    { title: "New announcement posted", time: "2 minutes ago", icon: Plus, color: "bg-yellow-500" },
+    { title: "New user registered", time: "15 minutes ago", icon: User, color: "bg-blue-950" },
+    { title: "News article updated", time: "1 hour ago", icon: Edit, color: "bg-red-500" }
+  ]
+
+  const hotlineNumbers = [
+    { service: "MDRRMO Emergency", number: "911 / (052) 234-5678", status: "Active" },
+    { service: "Police", number: "117 / (052) 456-7890", status: "Active" }
+  ]
+
+  const announcements = [
+    { 
+      title: "Emergency Weather Advisory", 
+      content: "Residents are advised to take necessary precautions as Tropical Storm Juanito approaches our region.", 
+      date: "Dec 15, 2024", 
+      type: "Urgent", 
+      typeColor: "bg-red-100 text-red-800" 
+    },
+    { 
+      title: "Annual Community Christmas Festival", 
+      content: "Join us for our annual Christmas Festival featuring local vendors, food stalls, and entertainment.", 
+      date: "Dec 12, 2024", 
+      type: "Event", 
+      typeColor: "bg-yellow-100 text-yellow-800" 
+    },
+    { 
+      title: "New Waste Collection Schedule", 
+      content: "Starting January 2025, our waste collection schedule will be adjusted to better serve all barangays.", 
+      date: "Dec 10, 2024", 
+      type: "Notice", 
+      typeColor: "bg-blue-100 text-blue-800" 
+    }
+  ]
+
+  const newsItems = [
+    { title: "BDRRM Planning Training Workshop", category: "Training", date: "June 29, 2025", status: "Published" },
+    { title: "Nationwide Earthquake Drill Conducted", category: "Event", date: "June 9, 2023", status: "Published" }
+  ]
+
+  const users = [
+    { name: "Admin User", role: "Administrator", email: "admin@pioduran.gov.ph", status: "Active", avatar: "A" },
+    { name: "Content Editor", role: "Editor", email: "editor@pioduran.gov.ph", status: "Active", avatar: "C" }
+  ]
+
+  const handleNavClick = (sectionId) => {
+    setActiveSection(sectionId)
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false)
+    }
+  }
+
+  const StatCard = ({ stat }) => (
+    <div className="bg-gradient-to-br from-blue-950 to-blue-800 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-blue-200 text-sm">{stat.title}</p>
+          <h3 className="text-3xl font-bold mt-2">{stat.value}</h3>
+        </div>
+        <div className={`${stat.color} w-12 h-12 rounded-full flex items-center justify-center`}>
+          <stat.icon className="text-yellow-500" size={24} />
+        </div>
+      </div>
+    </div>
+  )
+
+  const QuickAction = ({ action }) => (
+    <button className={`${action.color} hover:bg-blue-100 rounded-lg p-4 flex flex-col items-center transition-colors duration-200`}>
+      <div className="w-10 h-10 bg-blue-950 rounded-full flex items-center justify-center mb-2">
+        <action.icon className="text-yellow-500" size={20} />
+      </div>
+      <span className="text-sm font-medium text-blue-950">{action.title}</span>
+    </button>
+  )
+
+  const RecentActivity = ({ activity }) => (
+    <div className="flex items-start">
+      <div className={`${activity.color} w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0`}>
+        <activity.icon className="text-white" size={16} />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-blue-950">{activity.title}</p>
+        <p className="text-xs text-gray-500">{activity.time}</p>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="flex h-screen bg-gray-50 font-sans" style={{ fontFamily: 'Poppins, sans-serif' }}>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
+      {/* Sidebar */}
+      <div className={`sidebar w-64 bg-blue-950 text-white fixed h-full z-30 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="sidebarhead p-6 border-b border-blue-800 sticky top-0 bg-blue-950 z-10">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center mr-3 border-2 border-blue-950 overflow-hidden">
+              <img 
+                src="/images/design-mode/logome_h9snnx.webp" 
+                alt="MDRRMO Logo" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">MDRRMO</h1>
+              <p className="text-blue-200 text-sm">Pio Duran, Albay</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Scrollable navigation area */}
+        <nav className="sidebar-nav mt-2 overflow-y-auto h-[calc(100vh-120px)]">
+          {navItems.map((category, index) => (
+            <div key={index}>
+              <div className="px-6 py-2 text-blue-300 text-xs uppercase font-semibold">{category.category}</div>
+              {category.items.map((item) => {
+                const IconComponent = item.icon
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`nav-link flex items-center w-full px-6 py-3 text-sm transition-all duration-200 border-l-3 border-transparent ${
+                      activeSection === item.id 
+                        ? 'bg-blue-800 text-white border-l-yellow-500' 
+                        : 'text-blue-200 hover:bg-blue-800 hover:border-l-yellow-500'
+                    }`}
+                  >
+                    <IconComponent size={18} className="mr-3" />
+                    <span>{item.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          ))}
+          <div className="h-10"></div>
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="main-content flex-1 ml-0 lg:ml-64 transition-all duration-300">
+        {/* Header */}
+        <header className="bg-white shadow-sm sticky top-0 z-10">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center">
+              <button 
+                className="lg:hidden text-blue-950 mr-4"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <Menu size={24} />
+              </button>
+              <h1 className="text-2xl font-bold text-blue-950">Dashboard</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <button className="text-blue-950 relative">
+                  <Bell size={24} />
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                </button>
+              </div>
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-2">
+                  <span className="text-blue-950 font-bold text-sm">A</span>
+                </div>
+                <span className="text-blue-950 font-medium">Admin</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="p-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {stats.map((stat, index) => (
+              <StatCard key={index} stat={stat} />
+            ))}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-bold text-blue-950 mb-6">Quick Actions</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {quickActions.map((action, index) => (
+                    <QuickAction key={index} action={action} />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-xl font-bold text-blue-950 mb-6">Recent Activity</h2>
+              <div className="space-y-4">
+                {recentActivities.map((activity, index) => (
+                  <RecentActivity key={index} activity={activity} />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Management Sections */}
+          <div className="grid grid-cols-1 gap-6">
+            {/* Hotline Numbers Management */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-blue-950">Hotline Numbers Management</h2>
+                <button className="bg-blue-950 hover:bg-blue-800 text-yellow-500 px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                  <Plus size={16} className="mr-2" />
+                  Add Hotline
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-4 py-3">Service</th>
+                      <th className="px-4 py-3">Number</th>
+                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {hotlineNumbers.map((hotline, index) => (
+                      <tr key={index}>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-blue-950">{hotline.service}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-gray-600">{hotline.number}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Active</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex space-x-2">
+                            <button className="text-blue-950 hover:text-blue-700">
+                              <Edit size={16} />
+                            </button>
+                            <button className="text-red-500 hover:text-red-700">
+                              <Trash size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Announcements Management */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-blue-950">Announcements Management</h2>
+                <button className="bg-blue-950 hover:bg-blue-800 text-yellow-500 px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                  <Plus size={16} className="mr-2" />
+                  New Announcement
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {announcements.map((announcement, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${announcement.typeColor}`}>
+                        {announcement.type}
+                      </span>
+                      <div className="flex space-x-2">
+                        <button className="text-blue-950 hover:text-blue-700">
+                          <Edit size={16} />
+                        </button>
+                        <button className="text-red-500 hover:text-red-700">
+                          <Trash size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-blue-950 mb-2">{announcement.title}</h3>
+                    <p className="text-sm text-gray-600 mb-3">{announcement.content}</p>
+                    <div className="text-xs text-gray-500">Published: {announcement.date}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* News Management */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-blue-950">News & Updates Management</h2>
+                <button className="bg-blue-950 hover:bg-blue-800 text-yellow-500 px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                  <Plus size={16} className="mr-2" />
+                  Add News
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-4 py-3">Title</th>
+                      <th className="px-4 py-3">Category</th>
+                      <th className="px-4 py-3">Date</th>
+                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {newsItems.map((news, index) => (
+                      <tr key={index}>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-blue-950">{news.title}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">{news.category}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-gray-600">{news.date}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Published</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex space-x-2">
+                            <button className="text-blue-950 hover:text-blue-700">
+                              <Edit size={16} />
+                            </button>
+                            <button className="text-red-500 hover:text-red-700">
+                              <Trash size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* User Management */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-blue-950">User Management</h2>
+                <button className="bg-blue-950 hover:bg-blue-800 text-yellow-500 px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
+                  <Plus size={16} className="mr-2" />
+                  Add User
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-4 py-3">User</th>
+                      <th className="px-4 py-3">Role</th>
+                      <th className="px-4 py-3">Email</th>
+                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {users.map((user, index) => (
+                      <tr key={index}>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center">
+                            <div className={`w-8 h-8 ${user.avatar === 'A' ? 'bg-yellow-500' : 'bg-blue-950'} rounded-full flex items-center justify-center mr-3`}>
+                              <span className={`font-bold text-xs ${user.avatar === 'A' ? 'text-blue-950' : 'text-yellow-500'}`}>{user.avatar}</span>
+                            </div>
+                            <div>
+                              <div className="font-medium text-blue-950">{user.name}</div>
+                              <div className="text-xs text-gray-500">{user.role}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 rounded-full text-xs ${user.role === 'Administrator' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-gray-600">{user.email}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Active</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex space-x-2">
+                            <button className="text-blue-950 hover:text-blue-700">
+                              <Edit size={16} />
+                            </button>
+                            <button className="text-red-500 hover:text-red-700">
+                              <Trash size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}

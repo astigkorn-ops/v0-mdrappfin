@@ -1,0 +1,531 @@
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { MapPin, Search, Layers, AlertTriangle, Building, School, ShoppingBag, Bus, Hospital, Zap, Droplets, Eye, ChevronRight } from "lucide-react";
+\`\`\`jsx
+"use client";
+import React, { useState, useEffect, useRef } from "react";
+import { MapPin, Search, Layers, AlertTriangle, Building, School, ShoppingBag, Bus, Hospital, Zap, Droplets, Eye, ChevronRight } from "lucide-react";
+
+export default function MapSection() {
+  const [layers, setLayers] = useState({
+    evacuationCenters: true,
+    governmentFacilities: true,
+    schools: true,
+    markets: true,
+    transportation: true,
+    accidentProneAreas: true,
+    hospitals: true,
+    emergencyFacilities: true,
+    criticalInfrastructure: true,
+    weatherRadar: false,
+    riverLevels: false,
+  });
+
+  const [showControls, setShowControls] = useState(false);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const layersRef = useRef({});
+
+  // Toggle layer visibility
+  const toggleLayer = (layerName) => {
+    setLayers((prev) => ({
+      ...prev,
+      [layerName]: !prev[layerName],
+    }));
+  };
+
+  // Sample data
+  const evacuationCenters = [
+    { name: "Pio Duran Central School", lat: 13.029, lng: 123.444, capacity: 500 },
+    { name: "Barangay Hall - Poblacion", lat: 13.0295, lng: 123.446, capacity: 300 },
+    { name: "Banga Elementary School", lat: 13.0355, lng: 123.4505, capacity: 400 },
+    { name: "Duran Barangay Hall", lat: 13.04, lng: 123.46, capacity: 250 },
+  ];
+
+  const governmentFacilities = [
+    { name: "Municipal Hall", lat: 13.0293, lng: 123.445, type: "Main Office" },
+    { name: "MDRRMO Office", lat: 13.0291, lng: 123.4455, type: "Emergency Services" },
+    { name: "Health Center", lat: 13.0288, lng: 123.4445, type: "Healthcare" },
+  ];
+
+  const schools = [
+    { name: "Pio Duran Central School", lat: 13.029, lng: 123.444, level: "Elementary/Secondary" },
+    { name: "Banga Elementary School", lat: 13.0355, lng: 123.4505, level: "Elementary" },
+    { name: "Duran Elementary School", lat: 13.04, lng: 123.46, level: "Elementary" },
+  ];
+
+  const markets = [
+    { name: "Pio Duran Public Market", lat: 13.0285, lng: 123.4435, type: "Public Market" },
+    { name: "Banga Market", lat: 13.035, lng: 123.45, type: "Community Market" },
+  ];
+
+  const transportation = [
+    { name: "Pio Duran Bus Terminal", lat: 13.028, lng: 123.443, type: "Bus Terminal" },
+    { name: "Jeepney Stop - Poblacion", lat: 13.029, lng: 123.445, type: "Jeepney Stop" },
+    { name: "Tricycle Terminal", lat: 13.03, lng: 123.446, type: "Tricycle" },
+  ];
+
+  const accidentProneAreas = [
+    { name: "Intersection - National Highway", lat: 13.027, lng: 123.442, severity: "High" },
+    { name: "Curved Road - Banga", lat: 13.036, lng: 123.452, severity: "Medium" },
+  ];
+
+  const hospitals = [
+    { name: "Pio Duran District Hospital", lat: 13.0285, lng: 123.444, contact: "(052) 123-4567" },
+    { name: "Barangay Health Station", lat: 13.031, lng: 123.447, contact: "(052) 765-4321" },
+  ];
+
+  const emergencyFacilities = [
+    { name: "Fire Station", lat: 13.029, lng: 123.446, type: "Fire Response" },
+    { name: "Police Station", lat: 13.0288, lng: 123.4452, type: "Law Enforcement" },
+  ];
+
+  const criticalInfrastructure = [
+    { name: "Main Bridge", lat: 13.0275, lng: 123.443, type: "Bridge" },
+    { name: "Power Substation", lat: 13.032, lng: 123.448, type: "Power Plant" },
+  ];
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    console.log("Map search functionality triggered");
+  };
+
+  useEffect(() => {
+    const initializeMap = async () => {
+      try {
+        const L = (await import("leaflet")).default;
+        
+        // Add Leaflet CSS
+        if (typeof document !== "undefined") {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+          document.head.appendChild(link);
+        }
+
+        // Fix marker icons
+        delete (L.Icon.Default.prototype)._getIconUrl;
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+          iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+          shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+        });
+
+        if (mapRef.current && !mapInstanceRef.current) {
+          const map = L.map(mapRef.current).setView([13.0293, 123.445], 13);
+          
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          }).addTo(map);
+
+          // Custom icons with specified colors
+          const createIcon = (color) => L.icon({
+            iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+          });
+
+          const evacuationIcon = createIcon('green');
+          const governmentIcon = createIcon('blue');
+          const schoolIcon = createIcon('violet');
+          const marketIcon = createIcon('orange');
+          const transportIcon = createIcon('red');
+          const accidentIcon = createIcon('black');
+          const hospitalIcon = createIcon('pink');
+          const emergencyIcon = createIcon('darkblue');
+          const infrastructureIcon = createIcon('gray');
+
+          // Layer creation functions
+          const addEvacuationCenters = () => {
+            const group = L.layerGroup();
+            evacuationCenters.forEach((center) => {
+              const marker = L.marker([center.lat, center.lng], { icon: evacuationIcon })
+                .bindPopup(`<b>${center.name}</b><br>Evacuation Center<br>Capacity: ${center.capacity} persons`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.evacuationCenters = group;
+          };
+
+          const addGovernmentFacilities = () => {
+            const group = L.layerGroup();
+            governmentFacilities.forEach((facility) => {
+              const marker = L.marker([facility.lat, facility.lng], { icon: governmentIcon })
+                .bindPopup(`<b>${facility.name}</b><br>Government Facility<br>Type: ${facility.type}`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.governmentFacilities = group;
+          };
+
+          const addSchools = () => {
+            const group = L.layerGroup();
+            schools.forEach((school) => {
+              const marker = L.marker([school.lat, school.lng], { icon: schoolIcon })
+                .bindPopup(`<b>${school.name}</b><br>School<br>Level: ${school.level}`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.schools = group;
+          };
+
+          const addMarkets = () => {
+            const group = L.layerGroup();
+            markets.forEach((market) => {
+              const marker = L.marker([market.lat, market.lng], { icon: marketIcon })
+                .bindPopup(`<b>${market.name}</b><br>Market<br>Type: ${market.type}`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.markets = group;
+          };
+
+          const addTransportation = () => {
+            const group = L.layerGroup();
+            transportation.forEach((transport) => {
+              const marker = L.marker([transport.lat, transport.lng], { icon: transportIcon })
+                .bindPopup(`<b>${transport.name}</b><br>Transportation<br>Type: ${transport.type}`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.transportation = group;
+          };
+
+          const addAccidentProneAreas = () => {
+            const group = L.layerGroup();
+            accidentProneAreas.forEach((area) => {
+              const marker = L.marker([area.lat, area.lng], { icon: accidentIcon })
+                .bindPopup(`<b>${area.name}</b><br>Accident Prone Area<br>Severity: ${area.severity}`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.accidentProneAreas = group;
+          };
+
+          const addHospitals = () => {
+            const group = L.layerGroup();
+            hospitals.forEach((hospital) => {
+              const marker = L.marker([hospital.lat, hospital.lng], { icon: hospitalIcon })
+                .bindPopup(`<b>${hospital.name}</b><br>Hospital/Clinic<br>Contact: ${hospital.contact}`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.hospitals = group;
+          };
+
+          const addEmergencyFacilities = () => {
+            const group = L.layerGroup();
+            emergencyFacilities.forEach((facility) => {
+              const marker = L.marker([facility.lat, facility.lng], { icon: emergencyIcon })
+                .bindPopup(`<b>${facility.name}</b><br>Emergency Facility<br>Type: ${facility.type}`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.emergencyFacilities = group;
+          };
+
+          const addCriticalInfrastructure = () => {
+            const group = L.layerGroup();
+            criticalInfrastructure.forEach((infra) => {
+              const marker = L.marker([infra.lat, infra.lng], { icon: infrastructureIcon })
+                .bindPopup(`<b>${infra.name}</b><br>Critical Infrastructure<br>Type: ${infra.type}`);
+              group.addLayer(marker);
+            });
+            group.addTo(map);
+            layersRef.current.criticalInfrastructure = group;
+          };
+
+          const addWeatherRadar = () => {
+            const group = L.layerGroup();
+            // Placeholder for weather radar overlay
+            const radarPlaceholder = L.rectangle([[13.02, 123.43], [13.04, 123.46]], {
+              color: '#00ffff',
+              fillColor: '#00ffff',
+              fillOpacity: 0.1,
+              weight: 2
+            }).bindPopup('Weather Radar Overlay (Simulated)');
+            group.addLayer(radarPlaceholder);
+            group.addTo(map);
+            layersRef.current.weatherRadar = group;
+          };
+
+          const addRiverLevels = () => {
+            const group = L.layerGroup();
+            // Placeholder for river level monitoring
+            const riverPlaceholder = L.circle([13.028, 123.442], {
+              radius: 100,
+              color: '#0000ff',
+              fillColor: '#0000ff',
+              fillOpacity: 0.3
+            }).bindPopup('River Level Monitoring Point (Simulated)');
+            group.addLayer(riverPlaceholder);
+            group.addTo(map);
+            layersRef.current.riverLevels = group;
+          };
+
+          // Add initial layers
+          addEvacuationCenters();
+          addGovernmentFacilities();
+          addSchools();
+          addMarkets();
+          addTransportation();
+          addAccidentProneAreas();
+          addHospitals();
+          addEmergencyFacilities();
+          addCriticalInfrastructure();
+          addWeatherRadar();
+          addRiverLevels();
+
+          // Add legend
+          const legend = L.control({ position: "bottomright" });
+          legend.onAdd = () => {
+            const div = L.DomUtil.create("div", "info legend");
+            div.style.cssText = `
+              background: white;
+              padding: 10px;
+              border-radius: 8px;
+              box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+              font-size: 11px;
+              line-height: 1.4;
+            `;
+            div.innerHTML = `
+              <h4 style="margin: 0 0 8px 0; font-weight: 600; color: #012184;">Map Legend</h4>
+              <div><span style="color: #28a745;">●</span> Evacuation Centers</div>
+              <div><span style="color: #007bff;">●</span> Government Facilities</div>
+              <div><span style="color: #6f42c1;">●</span> Schools</div>
+              <div><span style="color: #fd7e14;">●</span> Markets</div>
+              <div><span style="color: #dc3545;">●</span> Transportation</div>
+              <div><span style="color: #000000;">●</span> Accident Prone Areas</div>
+              <div><span style="color: #e83e8c;">●</span> Hospitals/Clinics</div>
+              <div><span style="color: #0d47a1;">●</span> Emergency Facilities</div>
+              <div><span style="color: #616161;">●</span> Critical Infrastructure</div>
+              <div><span style="color: #00ffff;">■</span> Weather Radar</div>
+              <div><span style="color: #0000ff;">○</span> River Levels</div>
+            `;
+            return div;
+          };
+          legend.addTo(map);
+
+          mapInstanceRef.current = map;
+        }
+      } catch (error) {
+        console.error("Error initializing map:", error);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      initializeMap();
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update layer visibility
+  useEffect(() => {
+    if (mapInstanceRef.current && layersRef.current) {
+      Object.keys(layers).forEach((layerName) => {
+        const layer = layersRef.current[layerName];
+        if (layer) {
+          if (layers[layerName]) {
+            if (!mapInstanceRef.current.hasLayer(layer)) {
+              layer.addTo(mapInstanceRef.current);
+            }
+          } else {
+            if (mapInstanceRef.current.hasLayer(layer)) {
+              mapInstanceRef.current.removeLayer(layer);
+            }
+          }
+        }
+      });
+    }
+  }, [layers]);
+
+  return (
+    <div className="min-h-screen bg-white font-sans" style={{ fontFamily: 'Poppins, sans-serif' }}>
+      {/* Header */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4" style={{ color: '#012184' }}>
+            Interactive Community Map
+          </h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Explore our municipality with our interactive map featuring hazard zones, evacuation centers, and emergency services.
+          </p>
+        </div>
+
+        {/* Map Container */}
+        <div className="relative">
+          <div
+            ref={mapRef}
+            className="h-96 lg:h-[600px] rounded-2xl overflow-hidden shadow-xl bg-gray-100 border border-gray-200"
+          />
+          
+          {/* Minimal Layer Controls Toggle */}
+          <button
+            onClick={() => setShowControls(!showControls)}
+            className="absolute top-4 right-4 z-10 bg-yellow-500 hover:bg-yellow-600 text-gray-900 p-3 rounded-full shadow-lg transition-all duration-200 flex items-center gap-2"
+            style={{ backgroundColor: '#fcd530' }}
+          >
+            <Layers size={20} />
+            {showControls && <span className="hidden md:inline text-sm font-medium">Layers</span>}
+          </button>
+
+          {/* Layer Controls Panel */}
+          {showControls && (
+            <div className="absolute top-4 left-4 z-10 bg-white rounded-xl p-4 shadow-lg border border-gray-200 max-w-xs w-full animate-in slide-in-from-left-2 duration-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Layers size={18} />
+                  Map Layers
+                </h3>
+                <button
+                  onClick={() => setShowControls(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                {/* Hazard Layers */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                    <AlertTriangle size={14} className="text-red-500" />
+                    Hazard Layers
+                  </h4>
+                  <div className="space-y-2 pl-2">
+                    {Object.entries({
+                      evacuationCenters: "Evacuation Centers",
+                      governmentFacilities: "Government Facilities", 
+                      schools: "Schools",
+                      markets: "Markets",
+                      transportation: "Transportation",
+                      accidentProneAreas: "Accident Prone Areas"
+                    }).map(([key, label]) => (
+                      <LayerToggle
+                        key={key}
+                        checked={layers[key]}
+                        onChange={() => toggleLayer(key)}
+                        label={label}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Infrastructure Layers */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                    <Building size={14} className="text-blue-600" />
+                    Infrastructure
+                  </h4>
+                  <div className="space-y-2 pl-2">
+                    {Object.entries({
+                      hospitals: "Hospitals & Clinics",
+                      emergencyFacilities: "Emergency Facilities",
+                      criticalInfrastructure: "Critical Infrastructure"
+                    }).map(([key, label]) => (
+                      <LayerToggle
+                        key={key}
+                        checked={layers[key]}
+                        onChange={() => toggleLayer(key)}
+                        label={label}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Real-time Data */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                    <Eye size={14} className="text-green-600" />
+                    Real-time Data
+                  </h4>
+                  <div className="space-y-2 pl-2">
+                    {Object.entries({
+                      weatherRadar: "Weather Radar",
+                      riverLevels: "River Levels"
+                    }).map(([key, label]) => (
+                      <LayerToggle
+                        key={key}
+                        checked={layers[key]}
+                        onChange={() => toggleLayer(key)}
+                        label={label}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Search Bar */}
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 bg-white rounded-lg shadow-lg p-2 hidden md:flex">
+            <form onSubmit={handleSearch} className="flex items-center">
+              <Search className="w-5 h-5 text-gray-400 mr-2" />
+              <input
+                type="text"
+                placeholder="Search barangay, landmark..."
+                className="px-3 py-2 border-none outline-none text-sm"
+              />
+            </form>
+          </div>
+
+          {/* Mobile Search Button */}
+          <button className="absolute top-4 left-4 z-10 bg-white rounded-lg shadow-lg p-2 md:hidden">
+            <Search className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Map Info */}
+        <div className="mt-4 text-center text-sm text-gray-600">
+          <p>Interactive map showing barangay locations, hazard zones, and evacuation centers in Pio Duran, Albay</p>
+        </div>
+
+        {/* Visit Hazard Map Button */}
+        <div className="mt-8 text-center">
+          <a
+            href="/preparedness/hazard-map"
+            className="inline-flex items-center gap-2 bg-blue-950 hover:bg-blue-900 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
+            style={{ backgroundColor: '#012184' }}
+          >
+            Visit Hazard Map
+            <ChevronRight size={18} />
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Reusable Layer Toggle Component
+function LayerToggle({ checked, onChange, label }) {
+  return (
+    <div className="flex items-center justify-between py-1">
+      <span className="text-sm text-gray-700">{label}</span>
+      <button
+        onClick={onChange}
+        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-950 focus:ring-offset-2 ${
+          checked ? "bg-blue-950" : "bg-gray-300"
+        }`}
+        style={{ backgroundColor: checked ? '#012184' : '#d1d5db' }}
+      >
+        <span
+          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+            checked ? "translate-x-4" : "translate-x-1"
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+\`\`\`
