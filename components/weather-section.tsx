@@ -30,7 +30,7 @@ export default function WeatherSection() {
   const location = "Pio Duran, Albay";
   const lat = 13.0293;
   const lon = 123.445;
-  const apiKey = "ab864c815bdfb61b75e7b3651d67d925";
+  const apiKey = "1c2358da5a8a232a21c69bada746fe57";
 
   useEffect(() => {
     const fetchWeatherData = async () => {

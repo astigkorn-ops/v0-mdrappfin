@@ -10,14 +10,18 @@ type Alert = {
   description: string;
 };
 
+type WeatherData = {
+  temp: number;
+  description: string;
+  icon: string;
+  date: string;
+};
+
 export default function HeroSection() {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [backgroundImage, setBackgroundImage] = useState('');
-  const [currentWeather, setCurrentWeather] = useState<any>(null);
-  const [weatherAlert, setWeatherAlert] = useState<Alert | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // Removed weather ticker state
 
-  // Close all modals
   const closeModals = () => {
     const hotlineModal = document.getElementById('hotline-modal');
     const incidentModal = document.getElementById('incident-modal');
@@ -27,14 +31,12 @@ export default function HeroSection() {
     if (successModal) successModal.classList.add('hidden');
   };
 
-  // Handle incident form submission
   const handleIncidentSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     alert('Incident report submitted!');
     closeModals();
   };
 
-  // Update time every second
   useEffect(() => {
     setCurrentTime(new Date());
     const timer = setInterval(() => {
@@ -43,7 +45,6 @@ export default function HeroSection() {
     return () => clearInterval(timer);
   }, []);
 
-  // Set background image based on time
   useEffect(() => {
     if (!currentTime) return;
     const hour = currentTime.getHours();
@@ -65,56 +66,8 @@ export default function HeroSection() {
     setBackgroundImage(image);
   }, [currentTime]);
 
-  // Fetch weather data with alerts
-  useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const lat = 13.0307;
-        const lon = 123.4422;
-        const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-        if (!apiKey) {
-          setError('API key missing');
-          return;
-        }
+  // Removed weather ticker effect
 
-        const response = await fetch(
-          `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,daily&appid=${apiKey}&units=metric`
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch weather');
-        }
-
-        const data = await response.json();
-
-        setCurrentWeather({
-          temp: Math.round(data.current.temp),
-          description: data.current.weather[0].description,
-          icon: data.current.weather[0].icon,
-          date: new Date(data.current.dt * 1000).toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-          }),
-        });
-
-        if (data.alerts?.length > 0) {
-          setWeatherAlert(data.alerts[0]);
-        } else {
-          setWeatherAlert(null);
-        }
-        setError(null);
-      } catch (err) {
-        setError('Weather unavailable');
-        setWeatherAlert(null);
-        console.error(err);
-      }
-    };
-
-    fetchWeather();
-  }, []);
-
-  // Format time and date
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', {
       timeZone: 'Asia/Manila',
@@ -135,11 +88,10 @@ export default function HeroSection() {
     });
   };
 
-  // Image preview logic
   const previewImage = (input: HTMLInputElement) => {
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
         document.getElementById('upload-error')?.classList.remove('hidden');
         document.getElementById('error-message')!.textContent = 'File size exceeds 5MB limit';
@@ -191,18 +143,10 @@ export default function HeroSection() {
   };
 
   return (
-    <section
-      className="relative flex items-center justify-center bg-gradient-to-b from-yellow-900 to-blue-100 overflow-hidden min-h-screen"
-      id="hero"
-    >
-      {/* Dynamic Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-100 transition-opacity duration-1000"
-        style={{ backgroundImage: `url('${backgroundImage}')` }}
-      ></div>
+    <section className="relative flex items-center justify-center bg-gradient-to-b from-yellow-900 to-blue-100 overflow-hidden min-h-screen" id="hero">
+      <div className="absolute inset-0 bg-cover bg-center opacity-100 transition-opacity duration-1000" style={{ backgroundImage: `url('${backgroundImage}')` }}></div>
       <div className="absolute inset-0 bg-gradient-to-b from-blue-900/30 to-blue-800/30"></div>
 
-      {/* Time Card */}
       {currentTime && (
         <div className="absolute top-6 right-6 z-20">
           <div className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-4 shadow-xl glass-effect">
@@ -224,87 +168,28 @@ export default function HeroSection() {
           Enhancing disaster preparedness, strengthening community resilience and ensuring safety for all.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button
-            onClick={() => {
-              document.getElementById('hotline-modal')?.classList.remove('hidden');
-            }}
-            className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-accent to-yellow-600 text-primary font-bold rounded-full shadow-lg hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-95"
-          >
+          <button onClick={() => document.getElementById('hotline-modal')?.classList.remove('hidden')} className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-blue-900 font-bold rounded-full shadow-lg hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-95">
             <i className="fas fa-phone-alt mr-2"></i> Emergency Hotline
           </button>
-          <button
-            onClick={() => {
-              document.getElementById('incident-modal')?.classList.remove('hidden');
-            }}
-            className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-full shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-95"
-          >
+          <a href="/contact/report-incident" className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-full shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-95">
             <i className="fas fa-exclamation-triangle mr-2"></i> Report an Incident
-          </button>
+          </a>
         </div>
       </div>
 
-      {/* WEATHER TICKER — Only one rendered at a time */}
-      {weatherAlert || currentWeather ? (
-        <div
-          className={`absolute bottom-0 left-0 right-0 py-2 px-3 z-20 border-b-4 border-t-4 shadow-xl ${
-            weatherAlert
-              ? 'bg-red-700 border-red-400 text-white'
-              : 'bg-red-600 border-yellow-400 text-white'
-          }`}
-        >
-          <div className="container mx-auto flex items-center space-x-4">
-            <div className="flex items-center space-x-2 flex-shrink-0">
-              {weatherAlert ? (
-                <i className="fas fa-exclamation-triangle text-xl text-yellow-300 animate-pulse"></i>
-              ) : (
-                <i className="fas fa-cloud-sun text-xl text-yellow-300"></i>
-              )}
-              <span className="font-bold">
-                {weatherAlert ? 'WEATHER ALERT:' : 'WEATHER UPDATE:'}
-              </span>
-            </div>
-            <div className="marquee-container flex-1 overflow-hidden">
-              <div className="marquee-content whitespace-nowrap animate-marquee">
-                {weatherAlert ? (
-                  `${weatherAlert.event.toUpperCase()}: ${weatherAlert.description} (Until ${new Date(
-                    weatherAlert.end * 1000
-                  ).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`
-                ) : currentWeather ? (
-                  `Now: ${currentWeather.temp}°C, ${currentWeather.description.charAt(0).toUpperCase() + currentWeather.description.slice(1)}.`
-                ) : (
-                  'Weather data loading...'
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : !error ? (
-        <div className="absolute bottom-0 left-0 right-0 bg-red-600 text-white py-2 px-3 z-20 border-b-4 border-t-4 border-yellow-400 shadow-xl">
-          <div className="container mx-auto flex items-center space-x-4">
-            <div className="flex items-center space-x-2 flex-shrink-0">
-              <i className="fas fa-sync-alt fa-spin text-xl text-yellow-300"></i>
-              <span className="font-bold">LOADING WEATHER...</span>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {/* Weather ticker removed */}
 
-      {/* Bounce Arrow */}
       <div className="absolute bottom-5 left-0 right-0 flex justify-center z-10">
         <a href="#weather" className="text-white animate-bounce">
           <i className="fas fa-chevron-down text-3xl"></i>
         </a>
       </div>
 
-      {/* Modals */}
-      {/* Incident Modal */}
       <section id="incident-modal" className="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center pt-14 mt-14 p-4">
         <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold text-blue-900">Report an Emergency or Disaster-Related Incident</h3>
-            <button onClick={closeModals} className="text-gray-500 hover:text-gray-700">
-              <i className="fas fa-times"></i>
-            </button>
+            <button onClick={closeModals} className="text-gray-500 hover:text-gray-700"><i className="fas fa-times"></i></button>
           </div>
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 flex items-start">
             <i className="fas fa-exclamation-triangle text-red-500 text-xl mr-3 mt-1"></i>
@@ -397,13 +282,13 @@ export default function HeroSection() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Upload Photo (Optional)</label>
               <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                 <div className="space-y-1 text-center">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <div className="flex text-sm text-gray-600 justify-center">
-                    <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                    <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
                       <span>Upload a file</span>
-                      <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={(e) => previewImage(e.target)} />
+                      <input id="file-upload" type="file" className="sr-only" accept="image/*" onChange={(e) => previewImage(e.target)} />
                     </label>
                     <p className="pl-1">or drag and drop</p>
                   </div>
@@ -434,23 +319,16 @@ export default function HeroSection() {
               </div>
             </div>
             <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input id="agreement" name="agreement" type="checkbox" required className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="agreement" className="font-medium text-gray-700">I confirm that the information provided is accurate to the best of my knowledge.</label>
-              </div>
+              <input id="agreement" type="checkbox" required className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded" />
+              <label htmlFor="agreement" className="ml-3 text-sm font-medium text-gray-700">I confirm that the information provided is accurate to the best of my knowledge.</label>
             </div>
             <div className="pb-14">
-              <button type="submit" className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white font-bold py-3 px-6 rounded-md hover:from-red-700 hover:to-red-800 transition duration-300">
-                Submit Report
-              </button>
+              <button type="submit" className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white font-bold py-3 px-6 rounded-md hover:from-red-700 hover:to-red-800 transition duration-300">Submit Report</button>
             </div>
           </form>
         </div>
       </section>
 
-      {/* Success Modal */}
       <div id="success-modal" className="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="bg-white rounded-lg p-6 max-w-md w-full text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
@@ -458,61 +336,57 @@ export default function HeroSection() {
           </div>
           <h3 className="text-lg font-medium text-gray-900 mt-3">Report Submitted Successfully!</h3>
           <div className="mt-2">
-            <p className="text-sm text-gray-500">Your reference number is: <span id="reference-number" className="font-bold">RD-2025-0001</span></p>
+            <p className="text-sm text-gray-500">Your reference number is: <span className="font-bold">RD-2025-0001</span></p>
             <p className="text-sm text-gray-500 mt-2">An MDRRMO responder will contact you shortly.</p>
           </div>
           <div className="mt-4">
-            <button type="button" onClick={closeModals} className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500">
-              Close
-            </button>
+            <button onClick={closeModals} className="px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 rounded-md hover:bg-blue-200">Close</button>
           </div>
         </div>
       </div>
 
-      {/* Emergency Hotline Modal */}
-      <div id="hotline-modal" className="hidden fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center transition-all duration-300 px-4 pt-14">
-        <div className="relative bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full animate-fadeIn">
+      <div id="hotline-modal" className="hidden fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center px-4 pt-14">
+        <div className="relative bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full">
           <button onClick={closeModals} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl">
             <i className="fas fa-times-circle"></i>
           </button>
           <div className="flex items-center gap-4 mb-6">
-            <img src="https://img.icons8.com/color/96/emergency-call.png" alt="Hotline Icon" className="w-12 h-12" />
+            <i className="fas fa-phone-volume text-5xl text-red-600"></i>
             <h3 className="text-2xl font-bold text-blue-950">Emergency Hotlines</h3>
           </div>
-          <div className="space-y-4 text-gray-800 text-sm">
-            <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-3 hover:shadow-md transition duration-300">
-              <img src="/images/design-mode/administrator-male.png" alt="dail..." className="w-6 h-6 mt-1" />
-              <p><strong>Office of the Mayor:</strong> <a href="tel:0521234567" className="text-yellow-500 hover:underline">(052) 123-4567</a></p>
+          <div className="space-y-3 text-gray-800 text-sm">
+            <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-3 hover:shadow-md transition">
+              <i className="fas fa-user-tie text-blue-600 text-xl mt-1"></i>
+              <p><strong>Office of the Mayor:</strong> <a href="tel:0521234567" className="text-yellow-600 hover:underline">(052) 123-4567</a></p>
             </div>
-            <div className="flex items-start gap-3 bg-red-50 rounded-lg p-3 hover:shadow-md transition duration-300">
-              <img src="https://img.icons8.com/ios-filled/50/red/fireman.png" alt="dail..." className="w-6 h-6 mt-1" />
-              <p><strong>MDRRMO:</strong> <a href="tel:911" className="text-yellow-500 hover:underline">911</a> / <a href="tel:0522345678" className="text-yellow-500 hover:underline">(052) 234-5678</a></p>
+            <div className="flex items-start gap-3 bg-red-50 rounded-lg p-3 hover:shadow-md transition">
+              <i className="fas fa-fire-extinguisher text-red-600 text-xl mt-1"></i>
+              <p><strong>MDRRMO:</strong> <a href="tel:911" className="text-yellow-600 hover:underline">911</a> / <a href="tel:0522345678" className="text-yellow-600 hover:underline">(052) 234-5678</a></p>
             </div>
-            <div className="flex items-start gap-3 bg-purple-50 rounded-lg p-3 hover:shadow-md transition duration-300">
-              <img src="/images/design-mode/family.png" alt="dail..." className="w-6 h-6 mt-1" />
-              <p><strong>MSWD:</strong> <a href="tel:1343" className="text-yellow-500 hover:underline">1343</a></p>
+            <div className="flex items-start gap-3 bg-purple-50 rounded-lg p-3 hover:shadow-md transition">
+              <i className="fas fa-users text-purple-600 text-xl mt-1"></i>
+              <p><strong>MSWD:</strong> <a href="tel:1343" className="text-yellow-600 hover:underline">1343</a></p>
             </div>
-            <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-3 hover:shadow-md transition duration-300">
-              <img src="/images/design-mode/medical-doctor.png" alt="dail..." className="w-6 h-6 mt-1" />
-              <p><strong>Medical/MHO:</strong> <a href="tel:0523456789" className="text-yellow-500 hover:underline">(052) 345-6789</a></p>
+            <div className="flex items-start gap-3 bg-green-50 rounded-lg p-3 hover:shadow-md transition">
+              <i className="fas fa-user-md text-green-600 text-xl mt-1"></i>
+              <p><strong>Medical/MHO:</strong> <a href="tel:0523456789" className="text-yellow-600 hover:underline">(052) 345-6789</a></p>
             </div>
-            <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-3 hover:shadow-md transition duration-300">
-              <img src="/images/design-mode/policeman-male.png" alt="dail..." className="w-6 h-6 mt-1" />
-              <p><strong>PNP:</strong> <a href="tel:117" className="text-yellow-500 hover:underline">117</a> / <a href="tel:0524567890" className="text-yellow-500 hover:underline">(052) 456-7890</a></p>
+            <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-3 hover:shadow-md transition">
+              <i className="fas fa-shield-alt text-blue-700 text-xl mt-1"></i>
+              <p><strong>PNP:</strong> <a href="tel:117" className="text-yellow-600 hover:underline">117</a> / <a href="tel:0524567890" className="text-yellow-600 hover:underline">(052) 456-7890</a></p>
             </div>
-            <div className="flex items-start gap-3 bg-orange-50 rounded-lg p-3 hover:shadow-md transition duration-300">
-              <img src="/images/design-mode/fire-element.png" alt="dail..." className="w-6 h-6 mt-1" />
-              <p><strong>BFP:</strong> <a href="tel:0525678901" className="text-yellow-500 hover:underline">(052) 567-8901</a></p>
+            <div className="flex items-start gap-3 bg-orange-50 rounded-lg p-3 hover:shadow-md transition">
+              <i className="fas fa-fire text-orange-600 text-xl mt-1"></i>
+              <p><strong>BFP:</strong> <a href="tel:0525678901" className="text-yellow-600 hover:underline">(052) 567-8901</a></p>
             </div>
-            <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-3 hover:shadow-md transition duration-300">
-              <img src="https://img.icons8.com/ios-filled/50/007acc/boat-anchor.png" alt="dail..." className="w-6 h-6 mt-1" />
-              <p><strong>PCG:</strong> <a href="tel:0526789012" className="text-yellow-500 hover:underline">(052) 678-9012</a></p>
+            <div className="flex items-start gap-3 bg-cyan-50 rounded-lg p-3 hover:shadow-md transition">
+              <i className="fas fa-anchor text-cyan-600 text-xl mt-1"></i>
+              <p><strong>PCG:</strong> <a href="tel:0526789012" className="text-yellow-600 hover:underline">(052) 678-9012</a></p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Styles */}
       <style jsx>{`
         .glass-effect {
           background: rgba(255, 255, 255, 0.1);
@@ -533,20 +407,6 @@ export default function HeroSection() {
         @keyframes marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-100%); }
-        }
-        .animate-heartbeat {
-          animation: heartbeat 1.5s ease-in-out infinite;
-        }
-        @keyframes heartbeat {
-          0%, 10%, 20%, 100% { transform: scale(1); }
-          5%, 15% { transform: scale(1.1); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </section>
